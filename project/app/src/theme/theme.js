@@ -70,7 +70,7 @@ export const typography = {
   h6: w(type.h6, weight.medium),
   body: w(type.body14, weight.regular),
   bodyStrong: w(type.body14, weight.semibold),
-  caption: w(type.body12, weight.regular),
+  caption: w(type.body14, weight.regular),
   label: w(type.label, weight.medium),
 };
 

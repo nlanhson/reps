@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Icon from './Icon';
-import { colors, typography, radius, spacing, shadows, borderCurve } from '../theme';
+import { colors, typography, radius, spacing, shadows, borderCurve, useTier, useMaterialYou } from '../theme';
 
 // shadcn-style button. Variants:
 //   primary  (alias: default)  — solid orange brand, soft shadow
@@ -20,11 +20,20 @@ export default function AppButton({
 }) {
   const v = variant === 'default' ? 'primary' : variant;
   const solid = v === 'primary' || v === 'destructive';
+
+  // Material You tonal palette (Android 12+); null on every other tier, so the
+  // fallback look is unchanged. Brand variants stay solid across all tiers.
+  const tier = useTier();
+  const scheme = useMaterialYou();
+  const tonal = tier === 'material-you' && scheme ? scheme : null;
+
   const fg =
     v === 'primary' || v === 'destructive'
       ? colors.textOnAccent
       : v === 'secondary'
-        ? colors.textPrimary
+        ? tonal
+          ? tonal.onSecondaryContainer
+          : colors.textPrimary
         : colors.textSecondary;
 
   const bgFor = (pressed) => {
@@ -34,7 +43,13 @@ export default function AppButton({
       case 'destructive':
         return pressed ? colors.dangerSubtle : colors.danger;
       case 'secondary':
-        return pressed ? colors.border : colors.surfaceElevated;
+        return tonal
+          ? pressed
+            ? tonal.secondary
+            : tonal.secondaryContainer
+          : pressed
+            ? colors.border
+            : colors.surfaceElevated;
       default:
         return pressed ? colors.surfaceElevated : 'transparent';
     }

@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from '../components/Icon';
 
-import { colors, typography, spacing, radius } from '../theme';
+import { colors, typography, spacing, radius, useSurfaceStyle, GlassSurface } from '../theme';
 import { makeSession, UNIT } from '../data/session';
 
 const fmtDuration = (s) => {
@@ -28,6 +28,13 @@ export default function InSessionScreen({ navigation }) {
   const [expandedId, setExpandedId] = useState('ohp');
   const [duration, setDuration] = useState(24 * 60 + 3); // seed to match the mock
   const [rest, setRest] = useState({ active: false, remaining: 120 });
+
+  // Rest-bar chrome follows the active UI tier (glass / material / fallback).
+  const restChrome = useSurfaceStyle('bar', radius.pill);
+  const RestWrap = restChrome.glass ? GlassSurface : View;
+  const restWrapProps = restChrome.glass
+    ? { radius: radius.pill, style: styles.restBar }
+    : { style: [styles.restBar, restChrome.style] };
 
   // Workout duration ticks up.
   useEffect(() => {
@@ -198,7 +205,7 @@ export default function InSessionScreen({ navigation }) {
       </ScrollView>
 
       {/* Rest timer bar */}
-      <View style={styles.restBar}>
+      <RestWrap {...restWrapProps}>
         <Pressable
           style={styles.restAdj}
           onPress={() => setRest((r) => ({ ...r, remaining: Math.max(0, r.remaining - 15) }))}
@@ -223,7 +230,7 @@ export default function InSessionScreen({ navigation }) {
         >
           <Text style={[typography.bodyStrong, { color: colors.textOnAccent }]}>Skip</Text>
         </Pressable>
-      </View>
+      </RestWrap>
     </SafeAreaView>
   );
 }
@@ -332,6 +339,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceElevated,
     borderRadius: radius.sm,
   },
+  // Surface props (bg / radius / border) come from the tier via useSurfaceStyle;
+  // this keeps only positioning + layout.
   restBar: {
     position: 'absolute',
     left: spacing.xl,
@@ -340,11 +349,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    backgroundColor: colors.surface,
-    borderRadius: radius.pill,
     padding: spacing.xs,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
   },
   restAdj: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
   restCenter: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.xs },

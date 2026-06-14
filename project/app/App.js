@@ -4,7 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 
 import RootNavigator from './src/navigation/RootNavigator';
-import { colors } from './src/theme';
+import { colors, TierProvider } from './src/theme';
 
 // Import the 4 Inter weights by subpath (NOT the package barrel, which would
 // pull in all ~24 variants / ~8 MB). Family names here must match the
@@ -30,8 +30,10 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <StatusBar style="light" />
-      <RootNavigator />
+      <TierProvider>
+        <StatusBar style="light" />
+        <RootNavigator />
+      </TierProvider>
     </SafeAreaProvider>
   );
 }
