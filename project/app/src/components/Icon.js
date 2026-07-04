@@ -21,6 +21,9 @@ const MAP = {
   'sort-variant': { sf: 'line.3.horizontal.decrease', fallback: ['MaterialCommunityIcons', 'sort-variant'] },
   'plus-box-outline': { sf: 'plus.app', fallback: ['MaterialCommunityIcons', 'plus-box-outline'] },
   'pin-outline': { sf: 'pin', fallback: ['MaterialCommunityIcons', 'pin-outline'] },
+  'arrow-redo-outline': { sf: 'arrowshape.turn.up.right', fallback: ['Ionicons', 'arrow-redo-outline'] },
+  // no SF six-dot grab handle exists — use the MCI glyph on both platforms
+  'drag-vertical': { fallback: ['MaterialCommunityIcons', 'drag-vertical'] },
   'ellipsis-horizontal': { sf: 'ellipsis', fallback: ['Ionicons', 'ellipsis-horizontal'] },
   'ellipsis-vertical': { sf: 'ellipsis', fallback: ['Ionicons', 'ellipsis-vertical'] },
 

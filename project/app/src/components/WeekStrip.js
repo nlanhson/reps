@@ -1,43 +1,82 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { colors, typography, radius, spacing, borderCurve } from '../theme';
 
-// Horizontal week strip: weekday label over a date cell. The selected day
-// gets an orange filled cell. Matches the "Weekly Workout Log" header.
-// `days` = [{ key, weekday: 'Mon', date: 10 }], `selectedKey` selects one.
+// Figma "Weekly Workout Log" day pills: each day is a rounded cell with the
+// weekday, date, and a dot marking a logged workout. The selected day (today)
+// fills with the brand accent; its dot inverts to white.
+// `days` = [{ key, weekday: 'Mon', date: 10, logged: true }]
+// Pass `onSelect` to make the cells pressable; omit it for a passive strip.
+const DOT = 6; // logged-workout dot diameter (Figma spec)
+
 export default function WeekStrip({ days, selectedKey, onSelect }) {
   return (
     <View style={styles.strip}>
       {days.map((d) => {
         const active = d.key === selectedKey;
+        const Cell = onSelect ? Pressable : View;
         return (
-          <Pressable key={d.key} style={styles.col} onPress={() => onSelect?.(d.key)}>
-            <Text style={[typography.label, { color: colors.textSecondary }]}>{d.weekday}</Text>
-            <View style={[styles.cell, active && { backgroundColor: colors.accent }]}>
-              <Text
-                style={[
-                  typography.bodyStrong,
-                  { color: active ? colors.textOnAccent : colors.textPrimary },
-                ]}
-              >
-                {d.date}
-              </Text>
-            </View>
-          </Pressable>
+          <Cell
+            key={d.key}
+            style={[styles.cell, active && styles.cellActive]}
+            onPress={onSelect ? () => onSelect(d.key) : undefined}
+          >
+            <Text
+              style={[
+                active ? w12Medium : typography.captionSmall,
+                { color: colors.textPrimary, textAlign: 'center' },
+              ]}
+            >
+              {d.weekday}
+            </Text>
+            <Text style={[typography.h6, { color: colors.textPrimary, textAlign: 'center' }]}>
+              {d.date}
+            </Text>
+            <View
+              style={[
+                styles.dot,
+                d.logged && {
+                  backgroundColor: active ? colors.textOnAccent : colors.accent,
+                },
+              ]}
+            />
+          </Cell>
         );
       })}
     </View>
   );
 }
 
+// Selected weekday bumps to medium weight (Figma), same 12px metrics.
+// h6 carries the platform-correct medium cut (Inter_500Medium on Android).
+const w12Medium = {
+  ...typography.h6,
+  fontSize: typography.captionSmall.fontSize,
+  lineHeight: typography.captionSmall.lineHeight,
+  letterSpacing: typography.captionSmall.letterSpacing,
+};
+
 const styles = StyleSheet.create({
-  strip: { flexDirection: 'row', justifyContent: 'space-between' },
-  col: { alignItems: 'center', gap: spacing.sm, flex: 1 },
+  strip: { flexDirection: 'row', gap: spacing.xs },
   cell: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.md,
-    borderCurve,
+    flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: 2,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.sm,
+    borderRadius: radius.sm,
+    borderCurve,
+    backgroundColor: colors.surfaceElevated,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.hairline,
+  },
+  cellActive: {
+    backgroundColor: colors.accent,
+    borderColor: colors.hairlineBright,
+  },
+  dot: {
+    width: DOT,
+    height: DOT,
+    borderRadius: DOT / 2,
+    backgroundColor: 'transparent',
   },
 });

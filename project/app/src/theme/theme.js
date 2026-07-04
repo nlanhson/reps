@@ -28,6 +28,7 @@ export const colors = {
   // shadcn-style edges: a faint light hairline that gives cards a crisp,
   // premium border on dark backgrounds; ring = focus / accent highlight.
   hairline: 'rgba(255,255,255,0.08)',
+  hairlineBright: 'rgba(255,255,255,0.10)', // outlined shapes (folder card layers)
   ring: brand[500],          // #F05305 focus ring
 
   // Feedback
@@ -71,6 +72,7 @@ export const typography = {
   body: w(type.body14, weight.regular),
   bodyStrong: w(type.body14, weight.semibold),
   caption: w(type.body14, weight.regular),
+  captionSmall: w(type.body12, weight.regular),
   label: w(type.label, weight.medium),
 };
 

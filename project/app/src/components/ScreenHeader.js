@@ -6,14 +6,20 @@ import { colors, typography, spacing } from '../theme';
 //  - default: large left-aligned title with an optional trailing icon
 //    (Home / History / Profile tabs).
 //  - back: centered title with a leading back chevron + optional trailing
-//    icon (Plan Detail / Workout Detail / Settings / Calendar).
+//    icon(s) (Plan Detail / Workout Detail / Settings / Calendar).
+//
+// Trailing actions: pass `trailingIcon` (+ `onTrailingPress`) for one, or
+// `trailingIcons` = [{ icon, onPress }] for several (e.g. share + kebab).
 export default function ScreenHeader({
   title,
   variant = 'large',
   onBack,
   trailingIcon,
   onTrailingPress,
+  trailingIcons,
 }) {
+  const trailing = trailingIcons ?? (trailingIcon ? [{ icon: trailingIcon, onPress: onTrailingPress }] : []);
+
   if (variant === 'back') {
     return (
       <View style={styles.backRow}>
@@ -23,11 +29,13 @@ export default function ScreenHeader({
         <Text style={[typography.h5, styles.centerTitle]} numberOfLines={1}>
           {title}
         </Text>
-        <Pressable hitSlop={8} onPress={onTrailingPress} style={[styles.side, styles.sideEnd]}>
-          {trailingIcon ? (
-            <Icon name={trailingIcon} size={22} color={colors.textPrimary} />
-          ) : null}
-        </Pressable>
+        <View style={[styles.side, styles.sideEnd]}>
+          {trailing.map(({ icon, onPress }) => (
+            <Pressable key={icon} hitSlop={8} onPress={onPress}>
+              <Icon name={icon} size={22} color={colors.textPrimary} />
+            </Pressable>
+          ))}
+        </View>
       </View>
     );
   }
@@ -58,7 +66,12 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     marginBottom: spacing.xl,
   },
-  side: { width: 40, justifyContent: 'center' },
-  sideEnd: { alignItems: 'flex-end' },
+  side: { minWidth: 40, justifyContent: 'center' },
+  sideEnd: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: spacing.lg,
+  },
   centerTitle: { flex: 1, textAlign: 'center', color: colors.textPrimary },
 });

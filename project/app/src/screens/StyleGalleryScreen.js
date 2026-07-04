@@ -24,10 +24,10 @@ import {
 // before assembling real screens. Reached via the hidden "Gallery" route.
 
 const WEEK = [
-  { key: 'm', weekday: 'Mon', date: 10 },
-  { key: 't', weekday: 'Tue', date: 11 },
+  { key: 'm', weekday: 'Mon', date: 10, logged: true },
+  { key: 't', weekday: 'Tue', date: 11, logged: true },
   { key: 'w', weekday: 'Wed', date: 12 },
-  { key: 'th', weekday: 'Thu', date: 13 },
+  { key: 'th', weekday: 'Thu', date: 13, logged: true },
   { key: 'f', weekday: 'Fri', date: 14 },
   { key: 's', weekday: 'Sat', date: 15 },
   { key: 'su', weekday: 'Sun', date: 16 },
@@ -37,6 +37,7 @@ const SESSION = {
   name: 'Upper Body',
   date: 'Monday, May 5 · 2026',
   duration: '46 min',
+  volume: '3,438 kg',
   setCount: '15 Set',
   exercises: [
     { name: 'Bench Press', countPrefix: '3 ×', meta: '50 kg · 3 × 8–10' },

@@ -6,12 +6,16 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
+    "backgroundColor": "#050505",
+    "splash": {
+      "backgroundColor": "#050505"
+    },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.reps.app"
+      "bundleIdentifier": "com.nlanhson.reps"
     },
     "android": {
-      "package": "com.reps.app",
+      "package": "com.nlanhson.reps",
       "adaptiveIcon": {
         "backgroundColor": "#050505",
         "foregroundImage": "./assets/android-icon-foreground.png",

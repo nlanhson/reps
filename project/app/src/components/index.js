@@ -8,6 +8,7 @@ export { default as ExerciseRow } from './ExerciseRow';
 export { default as FolderCard } from './FolderCard';
 export { default as Icon } from './Icon';
 export { default as ListRow } from './ListRow';
+export { default as ProgressChart } from './ProgressChart';
 export { default as RoutineRow } from './RoutineRow';
 export { default as ScreenHeader } from './ScreenHeader';
 export { default as SectionLabel } from './SectionLabel';
