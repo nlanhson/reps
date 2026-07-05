@@ -1,9 +1,10 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { colors, typography, spacing } from '../theme';
+import { colors, useTypography, spacing } from '../theme';
 
 // Underline tab switcher (e.g. Workouts | Library). Active tab is primary
 // text with a 2px underline; inactive is secondary text.
 export default function UnderlineTabs({ tabs, value, onChange }) {
+  const typography = useTypography();
   return (
     <View style={styles.row}>
       {tabs.map((t) => {

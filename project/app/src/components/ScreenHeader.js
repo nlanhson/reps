@@ -1,6 +1,6 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import Icon from './Icon';
-import { colors, typography, spacing } from '../theme';
+import { colors, useTypography, spacing, TierSurface } from '../theme';
 
 // Two variants seen in the screens:
 //  - default: large left-aligned title with an optional trailing icon
@@ -10,6 +10,11 @@ import { colors, typography, spacing } from '../theme';
 //
 // Trailing actions: pass `trailingIcon` (+ `onTrailingPress`) for one, or
 // `trailingIcons` = [{ icon, onPress }] for several (e.g. share + kebab).
+//
+// `floating`: opt-in tiered bar chrome (real glass / material tonal / the
+// existing transparent look on fallback) for a header meant to sit above
+// scrolling content, e.g. a sticky Calendar month nav. Off by default so
+// existing full-bleed screens render unchanged.
 export default function ScreenHeader({
   title,
   variant = 'large',
@@ -17,11 +22,13 @@ export default function ScreenHeader({
   trailingIcon,
   onTrailingPress,
   trailingIcons,
+  floating = false,
 }) {
+  const typography = useTypography();
   const trailing = trailingIcons ?? (trailingIcon ? [{ icon: trailingIcon, onPress: onTrailingPress }] : []);
 
   if (variant === 'back') {
-    return (
+    const row = (
       <View style={styles.backRow}>
         <Pressable hitSlop={8} onPress={onBack} style={styles.side}>
           <Icon name="chevron-back" size={26} color={colors.textPrimary} />
@@ -37,6 +44,12 @@ export default function ScreenHeader({
           ))}
         </View>
       </View>
+    );
+    if (!floating) return row;
+    return (
+      <TierSurface role="bar" cornerRadius={0} bordered shadow={false} style={styles.floatingPad}>
+        {row}
+      </TierSurface>
     );
   }
 
@@ -74,4 +87,5 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   centerTitle: { flex: 1, textAlign: 'center', color: colors.textPrimary },
+  floatingPad: { paddingHorizontal: spacing.xl },
 });

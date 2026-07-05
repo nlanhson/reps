@@ -1,28 +1,40 @@
+import { useLayoutEffect } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, typography, spacing, gradients, radius } from '../theme';
-import { Card, Icon, RoutineRow, ScreenHeader } from '../components';
+import { colors, useTypography, spacing, gradients, radius } from '../theme';
+import { Card, Icon, RoutineRow } from '../components';
 import { getRoutine } from '../data/mock';
 
-// Plan Detail — a routine (training split) opened from a Library folder:
-// centered routine name in the header (share + options actions), the
-// routine's workouts as RoutineRows, and a ghost "Create New Workout" button.
+// Plan Detail — a routine (training split) opened from a Library folder. Uses
+// the NATIVE stack header (native iOS back button → Liquid Glass on iOS 26);
+// the routine name is the header title and share/options are native header
+// actions. Body = the routine's workouts as RoutineRows + a ghost
+// "Create New Workout" button.
 export default function PlanDetailScreen({ navigation, route }) {
+  const typography = useTypography();
   const routine = getRoutine(route.params?.id);
 
-  return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <ScreenHeader
-          variant="back"
-          title={routine.name}
-          onBack={() => navigation.goBack()}
-          trailingIcons={[
-            { icon: 'arrow-redo-outline' }, // share — TODO: export/share the routine
-            { icon: 'ellipsis-vertical' }, // options — TODO: rename/delete menu
-          ]}
-        />
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: routine.name,
+      headerRight: () => (
+        <View style={styles.headerActions}>
+          {/* TODO: export/share the routine */}
+          <Pressable hitSlop={8}>
+            <Icon name="arrow-redo-outline" size={22} color={colors.textPrimary} />
+          </Pressable>
+          {/* TODO: rename/delete menu */}
+          <Pressable hitSlop={8}>
+            <Icon name="ellipsis-vertical" size={22} color={colors.textPrimary} />
+          </Pressable>
+        </View>
+      ),
+    });
+  }, [navigation, routine.name]);
 
+  return (
+    <SafeAreaView style={styles.safe} edges={[]}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.list}>
           {routine.workouts.map((w) => (
             <RoutineRow
@@ -50,7 +62,8 @@ export default function PlanDetailScreen({ navigation, route }) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-  content: { paddingHorizontal: spacing.xl, paddingBottom: spacing['4xl'] },
+  content: { paddingHorizontal: spacing.xl, paddingBottom: spacing['4xl'], paddingTop: spacing.md },
+  headerActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
   list: { gap: spacing.md, marginTop: spacing.sm },
   createBtn: { marginTop: spacing.xl },
   createCard: {

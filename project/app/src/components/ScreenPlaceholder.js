@@ -1,10 +1,11 @@
 import { StyleSheet, Text, View, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, typography, spacing } from '../theme';
+import { colors, useTypography, spacing } from '../theme';
 
 // Temporary placeholder used while screens are stubbed.
 // Replace each screen's body with the real UI as we build it.
 export default function ScreenPlaceholder({ title, subtitle, actions = [] }) {
+  const typography = useTypography();
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.body}>

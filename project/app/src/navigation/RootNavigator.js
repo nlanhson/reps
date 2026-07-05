@@ -103,15 +103,17 @@ export default function RootNavigator() {
     <NavigationContainer theme={navTheme}>
       <Stack.Navigator screenOptions={stackScreenOptions}>
         <Stack.Screen name="Main" component={Tabs} options={{ headerShown: false }} />
+        {/* Native header (native iOS back button → Liquid Glass on iOS 26).
+            Title + trailing actions are set per-screen via navigation.setOptions. */}
         <Stack.Screen
           name="PlanDetail"
           component={PlanDetailScreen}
-          options={{ title: 'Plan', headerShown: false }}
+          options={{ title: 'Plan', headerBackButtonDisplayMode: 'minimal' }}
         />
         <Stack.Screen
           name="WorkoutDetail"
           component={WorkoutDetailScreen}
-          options={{ title: 'Workout', headerShown: false }}
+          options={{ title: 'Workout', headerBackButtonDisplayMode: 'minimal' }}
         />
         <Stack.Screen
           name="InSession"

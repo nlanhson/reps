@@ -1,14 +1,44 @@
 import { Pressable, Text, StyleSheet } from 'react-native';
-import { colors, typography, radius, spacing, useTier, useMaterialYou } from '../theme';
+import { colors, useTypography, radius, spacing, useTier, useMaterialYou, GlassSurface } from '../theme';
 
 // Filter / tag pill (shadcn badge feel). Selected = solid orange + white
-// text; unselected = transparent with a hairline border + secondary text.
-// On the material-you tier the unselected outline/text use the dynamic palette;
-// fallback (and Expo Go) are unchanged.
+// text (stays solid on every tier); unselected = transparent with a hairline
+// border + secondary text on fallback, dynamic palette on material-you, and
+// real glass on liquid-glass.
 export default function Chip({ label, selected = false, onPress }) {
+  const typography = useTypography();
   const tier = useTier();
   const scheme = useMaterialYou();
   const tonal = tier === 'material-you' && scheme ? scheme : null;
+  const glass = tier === 'liquid-glass' && !selected;
+
+  const text = (
+    <Text
+      style={[
+        typography.label,
+        {
+          color: selected
+            ? colors.textOnAccent
+            : tonal
+              ? tonal.onSurfaceVariant
+              : colors.textSecondary,
+        },
+      ]}
+    >
+      {label}
+    </Text>
+  );
+
+  if (glass) {
+    return (
+      <Pressable onPress={onPress}>
+        <GlassSurface radius={radius.pill} interactive style={styles.base}>
+          {text}
+        </GlassSurface>
+      </Pressable>
+    );
+  }
+
   return (
     <Pressable
       onPress={onPress}
@@ -29,20 +59,7 @@ export default function Chip({ label, selected = false, onPress }) {
             },
       ]}
     >
-      <Text
-        style={[
-          typography.label,
-          {
-            color: selected
-              ? colors.textOnAccent
-              : tonal
-                ? tonal.onSurfaceVariant
-                : colors.textSecondary,
-          },
-        ]}
-      >
-        {label}
-      </Text>
+      {text}
     </Pressable>
   );
 }

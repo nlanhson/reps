@@ -223,8 +223,76 @@ Reps — a workout logger / tracker mobile app.
       temp NativeTabs initialRouteName, reverted). NOTE: another session was working in this
       tree concurrently (Metro already on 8081; WorkoutDetail + dark-under-layer entries above
       landed mid-session) — it removed its own TEMP-VERIFY navigation leftovers itself.
-- [ ] Build remaining screens — Profile, Settings, Calendar
-      (now assembly from the component library)
+- [x] APPLE HIG combo confirmed + type layer made HIG-faithful with DYNAMIC TYPE. The
+      "Apple feel" stack was already wired: SF Pro (iOS system font, no fontFamily), SF Symbols
+      (`expo-symbols` via `Icon`), Liquid Glass (`expo-glass-effect` on the liquid-glass tier) —
+      so this was fidelity work, not new plumbing. TYPE SCALE retuned from screenshot values to
+      Apple HIG text styles in `theme/primitives.js`: **body is now 17pt (was 14)**, leading
+      tightened to HIG (~1.2× — e.g. Title1 28/34, was 28/42), and HIG per-size tracking (Display
+      ≥20pt near-zero/positive, Text <20pt negative). Added HIG-named tokens (title1–3, headline,
+      callout, subhead, footnote, caption1/2) in `theme.js`; legacy h1–h6/caption/label keys KEPT
+      and remapped to the nearest HIG style (h4→Headline 17, h5→Callout 16, h6→Subhead 15,
+      caption→Footnote 13, captionSmall→Caption1 12, label→Caption2 11) so no screen needed
+      restyling. largeTitle stays 34 (HIG Large Title — matches the History-header deviation kept
+      above). Bold titles retained (matches Apple Fitness/Health + the screenshots). DYNAMIC TYPE:
+      new reactive hook `src/theme/useTypography.ts` (exported from the theme barrel) scales each
+      token's `lineHeight` by the OS `fontScale` — RN already scales fontSize via allowFontScaling,
+      so fixed point lineHeights were the one thing clipping at large accessibility sizes; hook
+      clamps leading growth at 2.2×. Migrated ALL 20 text-rendering files from the static
+      `typography` import to `const typography = useTypography()` (SessionCard + InSessionScreen
+      have 3 hook calls each for their sub-components). Module-scope typography moved into-component
+      so Dynamic Type reaches it: InSessionScreen `th`/`td` (now applied inline; `styles.th` keeps
+      colour only) and WeekStrip `w12Medium`. Removed dead `typography`/`radius` imports from
+      StyleGalleryScreen. VERIFIED: `tsc --noEmit` clean, `expo export --platform ios` OK. PENDING
+      on-device visual check (no sim booted this session) — eyeball the hidden `Gallery` route,
+      then toggle iOS Settings → Accessibility → Larger Text to confirm reflow without clipping.
+- [x] DESIGN SYSTEM COMPLETENESS PASS — written guideline doc + closed the known
+      component/tiering gaps ahead of building Profile/Settings/Calendar, so those screens
+      assemble from a complete system instead of inventing patterns mid-screen. New:
+      `project/app/DESIGN_SYSTEM.md` — the usage reference (token table, component catalog,
+      do/don't rules, verification checklist) distinct from this file's chronological log.
+      New components (`src/components/`): `Toggle` (themed wrapper around RN `Switch`,
+      Material You-aware tint — replaces the ad-hoc inline `<Switch>` that was in
+      StyleGalleryScreen's "Sound & vibration" row), `Avatar` (circular, photo `uri` or
+      initials-fallback, sizes sm/md/lg — for Profile), `CalendarMonth` (7-col month heatmap,
+      `data={ [day]: intensity 0-1 }` blended into the accent color as an alpha tint — NOT
+      `opacity`, which would've also faded the day-number text — for the Calendar/Heatmap
+      screen). Closed the two TODOs flagged in the tiering system: (1) glass-on-controls —
+      `AppButton`'s non-solid variants (secondary/outline/ghost) and `Chip`'s unselected state
+      now render real `GlassSurface` on the liquid-glass tier instead of only having Material
+      You treatment (brand-solid variants/selected-chip still stay solid on every tier, per
+      existing convention); (2) `ScreenHeader` gained an opt-in `floating` prop that wraps the
+      back-variant row in `TierSurface role="bar"` for a header sitting above scrolling
+      content — off by default, so no existing screen's rendering changed. All three new
+      components + Toggle wired into the Gallery route; Buttons group in the Gallery expanded
+      to include outline/ghost/destructive (previously only primary/secondary shown, so the
+      glass code path had nothing to render against). VERIFIED: `tsc --noEmit` clean,
+      `expo export --platform ios` clean (1137 modules). NOT verified (no Xcode/simulator on
+      this machine — Linux): the new glass-on-controls path on-device on iOS 26, Toggle's
+      Material You tint on Android, CalendarMonth's layout/heatmap legibility on a real
+      screen size. Eyeball the Gallery route (Buttons, Avatar, Calendar/Heatmap, the Toggle
+      in List Rows) next time a sim/device is available.
+- [x] NATIVE-FIRST convention established + back buttons made native. User directive: wherever
+      an Apple native iOS component can do the job, use it over a custom one (app should feel
+      natively iOS + pick up Liquid Glass for free on iOS 26). Concrete fix — `PlanDetail` and
+      `WorkoutDetail` were the only two pushed screens drawing a CUSTOM back button (`ScreenHeader
+      variant="back"` = a bare `<Icon>` chevron, no system styling) because they set
+      `headerShown: false`; Settings/Calendar already used the native header. Converted both to the
+      NATIVE stack header: `RootNavigator` now shows the header with `headerBackButtonDisplayMode:
+      'minimal'` (native chevron back → Liquid Glass on iOS 26); each screen sets its title +
+      trailing actions via `navigation.setOptions` in a `useLayoutEffect` (`headerRight` = share+kebab
+      for PlanDetail, kebab for WorkoutDetail — still inert TODOs), and dropped the top safe-area edge
+      (native header owns it). `ScreenHeader variant="back"` is now used only by the Gallery route —
+      kept, but deprecated for real screens. `variant="large"` still used by the tab roots
+      (Home/History/Profile). VERIFIED: `tsc --noEmit` clean, `expo export --platform ios` clean.
+      NOT verified on-device (Linux, no sim) — eyeball that PlanDetail/WorkoutDetail show the native
+      back button + Liquid Glass on the iPhone/iOS 26. `DESIGN_SYSTEM.md` §6 documents the native-header
+      recipe + remaining custom-vs-native candidates (tab-root large titles, ConfirmDialog→Alert,
+      kebab→native menu). Preference saved to memory (reps-prefer-native-ios-components).
+- [ ] Build remaining screens — Settings, Calendar (Profile already built). Assembly from the
+      component library — Toggle/ListRow for Settings, CalendarMonth for Calendar. NOTE: Profile
+      screen exists (`src/screens/ProfileScreen.js`, ~294 lines) — built outside the tracked steps
+      above; reconcile/verify it against the design if not already done.
 
 ## Product decisions (locked)
 - **Units:** kg + lb toggle in Settings; default kg.
@@ -262,6 +330,11 @@ App identity: name "Reps", bundleIdentifier/package `com.nlanhson.reps` (was `co
   SUBPATH (`@expo-google-fonts/inter/400Regular/...ttf`) — the package barrel bundles all ~24
   variants (~8 MB); subpaths bundle only the 4 we use. No native rebuild (expo-font already in build).
   iOS verified unchanged on simulator. ANDROID render (Inter) NOT yet verified on an emulator.
+- TYPE SCALE = Apple HIG text styles (`primitives.js` `type`): body 17 / leading ~1.2× / HIG
+  per-size tracking. `theme.js` exposes HIG-named tokens (title1–3, headline, callout, subhead,
+  footnote, caption1/2) + legacy h1–h6/caption/label aliases mapped to the nearest HIG style.
+  DYNAMIC TYPE: use the `useTypography()` hook (theme barrel), not the static `typography`, in any
+  component that renders text — it scales lineHeight by the OS fontScale (fontSize scales natively).
 - Spacing (4-pt) is INFERRED, not measured — confirm against real screens.
 - Radius matches the Figma system: lg=24 (big cards), md=18 (buttons & small controls), sm=10, pill.
   Hero/folder/session/routine cards use lg(24); AppButton uses md(18) — buttons are rounded-18

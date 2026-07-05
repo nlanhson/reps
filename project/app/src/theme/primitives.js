@@ -11,8 +11,12 @@ export const neutral = {
   100: '#EBEBEB', // Primary Text
   300: '#B1B1B1',
   400: '#949494',
+  500: '#727272', // Faint text (neutral deltas)
+  600: '#505050', // Icon chip fill
   700: '#2E2D32', // Element BG (elevated surface)
+  750: '#1F1F21', // Small pill / badge background
   800: '#101010', // Card / element background
+  850: '#0B0B0B', // Sunken tile (flat, darker than cards)
   900: '#050505', // App background
 };
 
@@ -57,20 +61,27 @@ export const gradient = {
 
 // --- Type scale primitives --------------------------------------------
 // Family: SF Pro. On iOS this IS the system font, so fontFamily is left
-// as the platform default ('System'). Letter spacing in the screenshot
-// is "-2%" for everything below Large Title — converted to points
-// (RN letterSpacing is absolute points = -0.02 * fontSize).
+// as the platform default ('System') and the weight selects the SF Pro cut.
+//
+// These are Apple's Human Interface Guidelines text styles at the default
+// ("Large") Dynamic Type content size: fontSize (pt) / lineHeight (pt) /
+// tracking (pt). Values transcribed from the HIG "Typography → Specifications"
+// table. Note the two optical sizes: SF Pro *Display* (>=20pt) uses near-zero
+// or slightly positive tracking; SF Pro *Text* (<20pt) uses negative tracking
+// to tighten. lineHeight here is the base leading — it is scaled at runtime by
+// the OS fontScale in useTypography() so it grows with Dynamic Type.
 export const type = {
-  largeTitle: { fontSize: 34, lineHeight: 41, letterSpacing: 0.4 },
-  h1:         { fontSize: 28, lineHeight: 42, letterSpacing: -0.56 },
-  h2:         { fontSize: 24, lineHeight: 36, letterSpacing: -0.48 },
-  h3:         { fontSize: 22, lineHeight: 32, letterSpacing: -0.44 },
-  h4:         { fontSize: 20, lineHeight: 30, letterSpacing: -0.40 },
-  h5:         { fontSize: 18, lineHeight: 28, letterSpacing: -0.36 },
-  h6:         { fontSize: 16, lineHeight: 24, letterSpacing: -0.32 },
-  body14:     { fontSize: 14, lineHeight: 16.8, letterSpacing: -0.28 },
-  body12:     { fontSize: 12, lineHeight: 14.4, letterSpacing: -0.24 },
-  label:      { fontSize: 11, lineHeight: 13.2, letterSpacing: -0.22 },
+  largeTitle: { fontSize: 34, lineHeight: 41, letterSpacing: 0.37 },
+  title1:     { fontSize: 28, lineHeight: 34, letterSpacing: 0.36 },
+  title2:     { fontSize: 22, lineHeight: 28, letterSpacing: 0.35 },
+  title3:     { fontSize: 20, lineHeight: 25, letterSpacing: 0.38 },
+  headline:   { fontSize: 17, lineHeight: 22, letterSpacing: -0.43 },
+  body:       { fontSize: 17, lineHeight: 22, letterSpacing: -0.43 },
+  callout:    { fontSize: 16, lineHeight: 21, letterSpacing: -0.31 },
+  subhead:    { fontSize: 15, lineHeight: 20, letterSpacing: -0.23 },
+  footnote:   { fontSize: 13, lineHeight: 18, letterSpacing: -0.08 },
+  caption1:   { fontSize: 12, lineHeight: 16, letterSpacing: 0 },
+  caption2:   { fontSize: 11, lineHeight: 13, letterSpacing: 0.06 },
 };
 
 // Font weights as RN string values

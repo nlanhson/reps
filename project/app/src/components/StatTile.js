@@ -1,9 +1,10 @@
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, typography, radius, spacing, borderCurve } from '../theme';
+import { colors, useTypography, radius, spacing, borderCurve } from '../theme';
 
 // Profile stat tile: big number with a small caption label beneath, on a
 // card surface. Optional leading icon shown above the number.
 export default function StatTile({ value, label, icon }) {
+  const typography = useTypography();
   return (
     <View style={styles.tile}>
       {icon}

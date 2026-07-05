@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Svg, { Path, Circle, Line, Defs, LinearGradient, Stop } from 'react-native-svg';
-import { colors, typography, spacing } from '../theme';
+import { colors, useTypography, spacing } from '../theme';
 
 // Single-series progress chart (Workout Detail): orange line + soft gradient
 // area over a recessive 3-line grid, per the design screenshot. Axis text uses
@@ -26,6 +26,7 @@ function niceCeil(max) {
 const fmt = (v) => (v >= 1000 ? `${v / 1000}k` : `${v}`);
 
 export default function ProgressChart({ labels, values, unit, height = 150 }) {
+  const typography = useTypography();
   const [width, setWidth] = useState(0);
 
   const plotW = width - GUTTER;

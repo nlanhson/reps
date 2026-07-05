@@ -9,7 +9,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, typography, spacing } from '../theme';
+import { colors, useTypography, spacing } from '../theme';
 import { Icon, ScreenHeader, SessionCard, WeekStrip } from '../components';
 import { historyWeeks, todayKey } from '../data/history';
 
@@ -18,6 +18,7 @@ import { historyWeeks, todayKey } from '../data/history';
 // sessions for that week, paged horizontally one page per week. Chevrons
 // and swipes both drive the same week index, so the strip stays in sync.
 export default function HistoryScreen() {
+  const typography = useTypography();
   const { width } = useWindowDimensions();
   const pagerRef = useRef(null);
   const [weekIndex, setWeekIndex] = useState(historyWeeks.length - 1); // land on the current week

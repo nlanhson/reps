@@ -1,5 +1,5 @@
 import { Modal, View, Text, StyleSheet } from 'react-native';
-import { colors, typography, radius, spacing, TierSurface } from '../theme';
+import { colors, useTypography, radius, spacing, TierSurface } from '../theme';
 import AppButton from './AppButton';
 
 // Centered confirmation modal ("Popup/dark" sheet entry). Used for the
@@ -14,6 +14,7 @@ export default function ConfirmDialog({
   onConfirm,
   onCancel,
 }) {
+  const typography = useTypography();
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
       <View style={styles.backdrop}>

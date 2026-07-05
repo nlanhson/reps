@@ -1,6 +1,16 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Icon from './Icon';
-import { colors, typography, radius, spacing, shadows, borderCurve, useTier, useMaterialYou } from '../theme';
+import {
+  colors,
+  useTypography,
+  radius,
+  spacing,
+  shadows,
+  borderCurve,
+  useTier,
+  useMaterialYou,
+  GlassSurface,
+} from '../theme';
 
 // shadcn-style button. Variants:
 //   primary  (alias: default)  — solid orange brand, soft shadow
@@ -18,6 +28,7 @@ export default function AppButton({
   disabled = false,
   style,
 }) {
+  const typography = useTypography();
   const v = variant === 'default' ? 'primary' : variant;
   const solid = v === 'primary' || v === 'destructive';
 
@@ -26,6 +37,9 @@ export default function AppButton({
   const tier = useTier();
   const scheme = useMaterialYou();
   const tonal = tier === 'material-you' && scheme ? scheme : null;
+  // Liquid Glass: non-solid variants render as real glass instead of a flat
+  // fill/hairline. Brand (primary/destructive) stays solid on every tier.
+  const glass = tier === 'liquid-glass' && !solid;
 
   const fg =
     v === 'primary' || v === 'destructive'
@@ -55,6 +69,29 @@ export default function AppButton({
     }
   };
 
+  const content = (
+    <View style={styles.content}>
+      {icon ? <Icon name={icon} size={size === 'sm' ? 16 : 18} color={fg} /> : null}
+      <Text style={[size === 'sm' ? typography.body : typography.bodyStrong, { color: fg }]}>
+        {label}
+      </Text>
+    </View>
+  );
+
+  if (glass) {
+    return (
+      <Pressable onPress={onPress} disabled={disabled} style={[disabled && styles.disabled, style]}>
+        <GlassSurface
+          radius={radius.md}
+          interactive
+          style={[styles.base, size === 'sm' && styles.sm]}
+        >
+          {content}
+        </GlassSurface>
+      </Pressable>
+    );
+  }
+
   return (
     <Pressable
       onPress={onPress}
@@ -69,12 +106,7 @@ export default function AppButton({
         style,
       ]}
     >
-      <View style={styles.content}>
-        {icon ? <Icon name={icon} size={size === 'sm' ? 16 : 18} color={fg} /> : null}
-        <Text style={[size === 'sm' ? typography.body : typography.bodyStrong, { color: fg }]}>
-          {label}
-        </Text>
-      </View>
+      {content}
     </Pressable>
   );
 }

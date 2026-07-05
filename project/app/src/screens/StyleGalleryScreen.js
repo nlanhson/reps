@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { ScrollView, View, Text, Switch, StyleSheet } from 'react-native';
+import { ScrollView, View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { colors, typography, spacing, radius } from '../theme';
+import { colors, spacing } from '../theme';
 import {
   AppButton,
+  Avatar,
+  CalendarMonth,
   Card,
   Chip,
   ConfirmDialog,
@@ -15,6 +17,7 @@ import {
   Separator,
   SessionCard,
   StatTile,
+  Toggle,
   UnderlineTabs,
   WeekStrip,
 } from '../components';
@@ -56,6 +59,9 @@ function Group({ title, children }) {
   );
 }
 
+const now = new Date();
+const CALENDAR_DATA = { 2: 0.3, 5: 0.6, 9: 1, 10: 0.4, 16: 0.8, 22: 0.5 };
+
 export default function StyleGalleryScreen({ navigation }) {
   const [tab, setTab] = useState('Workouts');
   const [chip, setChip] = useState('Volume');
@@ -63,6 +69,8 @@ export default function StyleGalleryScreen({ navigation }) {
   const [expanded, setExpanded] = useState(false);
   const [sw, setSw] = useState(true);
   const [dialog, setDialog] = useState(false);
+  const [calMonth, setCalMonth] = useState({ year: now.getFullYear(), month: now.getMonth() });
+  const [calDay, setCalDay] = useState(now.getDate());
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -77,6 +85,17 @@ export default function StyleGalleryScreen({ navigation }) {
           <View style={{ gap: spacing.sm }}>
             <AppButton label="Start Workout" icon="play" onPress={() => {}} />
             <AppButton label="Start Empty Workout" icon="add" variant="secondary" onPress={() => {}} />
+            <AppButton label="Outline" variant="outline" onPress={() => {}} />
+            <AppButton label="Ghost" variant="ghost" onPress={() => {}} />
+            <AppButton label="Destructive" variant="destructive" onPress={() => {}} />
+          </View>
+        </Group>
+
+        <Group title="Avatar">
+          <View style={styles.rowWrap}>
+            <Avatar name="Son Nguyen" size="sm" />
+            <Avatar name="Son Nguyen" size="md" />
+            <Avatar name="Son Nguyen" size="lg" />
           </View>
         </Group>
 
@@ -124,13 +143,28 @@ export default function StyleGalleryScreen({ navigation }) {
               label="Sound & vibration"
               icon="volume-high-outline"
               showChevron={false}
-              trailing={
-                <Switch
-                  value={sw}
-                  onValueChange={setSw}
-                  trackColor={{ true: colors.accent, false: colors.border }}
-                  thumbColor={colors.textPrimary}
-                />
+              trailing={<Toggle value={sw} onValueChange={setSw} />}
+            />
+          </Card>
+        </Group>
+
+        <Group title="Calendar / Heatmap">
+          <Card>
+            <CalendarMonth
+              year={calMonth.year}
+              month={calMonth.month}
+              data={CALENDAR_DATA}
+              selectedDay={calDay}
+              onSelectDay={setCalDay}
+              onPrevMonth={() =>
+                setCalMonth(({ year, month }) =>
+                  month === 0 ? { year: year - 1, month: 11 } : { year, month: month - 1 },
+                )
+              }
+              onNextMonth={() =>
+                setCalMonth(({ year, month }) =>
+                  month === 11 ? { year: year + 1, month: 0 } : { year, month: month + 1 },
+                )
               }
             />
           </Card>

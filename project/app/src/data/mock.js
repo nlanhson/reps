@@ -61,6 +61,48 @@ export const library = routines.map((r) => ({
 }));
 
 // ---------------------------------------------------------------------------
+// Profile
+
+// The signed-in user's profile screen data. `delta` badges carry a direction
+// ('up' | 'down') so the view can colour + point them without parsing strings.
+export const profile = {
+  name: 'John Doe',
+  since: 2021,
+  // Rolling 7-day summary shown under the avatar.
+  snapshot: {
+    workouts: '4',
+    duration: '4h 26min',
+    durationDelta: { dir: 'up', value: '36 min' },
+    volume: '9,225 kg',
+    volumeDelta: { dir: 'down', value: '721 kg' },
+  },
+  // All-time headline stats (2×2 grid).
+  stats: [
+    { id: 'workouts', icon: 'barbell-outline', label: 'WORKOUTS', value: '142' },
+    { id: 'streak', icon: 'flame', label: 'STREAK', value: '12', unit: 'weeks' },
+    { id: 'pr', icon: 'trophy', label: 'PR COUNT', value: '8' },
+    { id: 'hours', icon: 'time-outline', label: 'HOURS', value: '210', unit: 'hours' },
+  ],
+  // Active goals with progress notes.
+  goals: [
+    { id: 'weight', icon: 'target', title: 'Target Weight', current: 'Current: 84kg', target: '80 kg', note: '-4 kg to go' },
+    { id: 'bench', icon: 'barbell-outline', title: 'Bench Press', current: 'Current: 90kg', target: '100 kg', note: '10 kg to go' },
+  ],
+  // Insight shortcuts (2×2 grid). `route` navigates when present.
+  insights: [
+    { id: 'calendar', icon: 'calendar', label: 'Calendar', route: 'Calendar' },
+    { id: 'report', icon: 'report', label: 'Report' },
+    { id: 'statistics', icon: 'stats', label: 'Statistics' },
+    { id: 'measures', icon: 'measure', label: 'Measures' },
+  ],
+  // Data actions (row of two).
+  data: [
+    { id: 'export', icon: 'export', label: 'Export Data' },
+    { id: 'sync', icon: 'cloud', label: 'Sync Cloud' },
+  ],
+};
+
+// ---------------------------------------------------------------------------
 // Workout Detail
 
 // Progress series shown on the Workout Detail chart, per metric. Values are

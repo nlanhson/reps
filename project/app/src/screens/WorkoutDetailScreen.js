@@ -1,16 +1,8 @@
-import { useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, typography, spacing, gradients } from '../theme';
-import {
-  AppButton,
-  Card,
-  Chip,
-  ExerciseRow,
-  Icon,
-  ProgressChart,
-  ScreenHeader,
-} from '../components';
+import { colors, useTypography, spacing, gradients } from '../theme';
+import { AppButton, Card, Chip, ExerciseRow, Icon, ProgressChart } from '../components';
 import { getWorkout } from '../data/mock';
 
 // Workout Detail — one workout of a routine, opened from Plan Detail or the
@@ -25,20 +17,28 @@ const METRICS = [
 ];
 
 export default function WorkoutDetailScreen({ navigation, route }) {
+  const typography = useTypography();
   const workout = getWorkout(route.params?.id);
   const [metric, setMetric] = useState('volume');
   const series = workout.progress[metric];
 
-  return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <ScreenHeader
-          variant="back"
-          title="Workout Detail"
-          onBack={() => navigation.goBack()}
-          trailingIcons={[{ icon: 'ellipsis-vertical' }]} // TODO: edit/delete menu
-        />
+  // Native stack header (native iOS back button → Liquid Glass on iOS 26); the
+  // kebab is a native header action. The big workout name stays in the body.
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: 'Workout Detail',
+      headerRight: () => (
+        // TODO: edit/delete menu
+        <Pressable hitSlop={8}>
+          <Icon name="ellipsis-vertical" size={22} color={colors.textPrimary} />
+        </Pressable>
+      ),
+    });
+  }, [navigation]);
 
+  return (
+    <SafeAreaView style={styles.safe} edges={['bottom']}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={[typography.h2, { color: colors.textPrimary }]}>{workout.name}</Text>
         <Text style={[typography.caption, styles.meta]}>
           {workout.exercises.length} exercises  ·  {workout.durationEstimate}
@@ -93,7 +93,7 @@ export default function WorkoutDetailScreen({ navigation, route }) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-  content: { paddingHorizontal: spacing.xl, paddingBottom: spacing.lg },
+  content: { paddingHorizontal: spacing.xl, paddingTop: spacing.md, paddingBottom: spacing.lg },
   meta: { color: colors.textSecondary, marginTop: spacing.xs },
   chipRow: {
     flexDirection: 'row',

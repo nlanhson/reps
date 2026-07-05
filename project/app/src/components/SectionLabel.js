@@ -1,8 +1,9 @@
 import { Text, StyleSheet } from 'react-native';
-import { colors, typography, spacing } from '../theme';
+import { colors, useTypography, spacing } from '../theme';
 
 // Small caption header that sits above a section (e.g. "Today's Workout").
 export default function SectionLabel({ children, style }) {
+  const typography = useTypography();
   return <Text style={[typography.caption, styles.label, style]}>{children}</Text>;
 }
 

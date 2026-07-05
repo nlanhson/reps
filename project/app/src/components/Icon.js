@@ -41,6 +41,20 @@ const MAP = {
   'timer-outline': { sf: 'timer', fallback: ['Ionicons', 'timer-outline'] },
   'layers-outline': { sf: 'square.stack.3d.up', fallback: ['Ionicons', 'layers-outline'] },
   'volume-high-outline': { sf: 'speaker.wave.3', fallback: ['Ionicons', 'volume-high-outline'] },
+  settings: { sf: 'gearshape.fill', fallback: ['Ionicons', 'settings'] },
+  calendar: { sf: 'calendar', fallback: ['Ionicons', 'calendar-outline'] },
+  flame: { sf: 'flame.fill', fallback: ['Ionicons', 'flame'] },
+  trophy: { sf: 'trophy.fill', fallback: ['Ionicons', 'trophy'] },
+  target: { sf: 'target', fallback: ['MaterialCommunityIcons', 'target'] },
+  report: { sf: 'doc.text', fallback: ['Ionicons', 'document-text-outline'] },
+  stats: { sf: 'chart.bar.fill', fallback: ['Ionicons', 'stats-chart'] },
+  measure: { sf: 'ruler', fallback: ['MaterialCommunityIcons', 'ruler'] },
+  export: { sf: 'square.and.arrow.up', fallback: ['Ionicons', 'share-outline'] },
+  cloud: { sf: 'icloud', fallback: ['Ionicons', 'cloud-outline'] },
+
+  // trend deltas
+  'caret-up': { sf: 'arrowtriangle.up.fill', fallback: ['Ionicons', 'caret-up'] },
+  'caret-down': { sf: 'arrowtriangle.down.fill', fallback: ['Ionicons', 'caret-down'] },
 
   // tab bar
   home: { sf: 'house.fill', fallback: ['Ionicons', 'home'] },

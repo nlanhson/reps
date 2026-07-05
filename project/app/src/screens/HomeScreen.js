@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, typography, spacing, gradients, radius } from '../theme';
+import { colors, useTypography, spacing, gradients, radius } from '../theme';
 import {
   AppButton,
   Card,
@@ -32,6 +32,7 @@ const DURATION = 200; // ms — fast; tab switches happen often
 const EASE_OUT = Easing.bezier(0.23, 1, 0.32, 1); // strong ease-out (Emil)
 
 export default function HomeScreen({ navigation }) {
+  const typography = useTypography();
   const [tab, setTab] = useState(LIBRARY_TAB);
   const onLibrary = tab === LIBRARY_TAB;
 

@@ -1,6 +1,8 @@
 // Reps shared component library — single import surface.
 // import { Card, Chip, ScreenHeader, ... } from '../components';
 export { default as AppButton } from './AppButton';
+export { default as Avatar } from './Avatar';
+export { default as CalendarMonth } from './CalendarMonth';
 export { default as Card } from './Card';
 export { default as Chip } from './Chip';
 export { default as ConfirmDialog } from './ConfirmDialog';
@@ -15,5 +17,6 @@ export { default as SectionLabel } from './SectionLabel';
 export { default as Separator } from './Separator';
 export { default as SessionCard } from './SessionCard';
 export { default as StatTile } from './StatTile';
+export { default as Toggle } from './Toggle';
 export { default as UnderlineTabs } from './UnderlineTabs';
 export { default as WeekStrip } from './WeekStrip';

@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from '../components/Icon';
 
-import { colors, typography, spacing, radius, useSurfaceStyle, GlassSurface } from '../theme';
+import { colors, useTypography, spacing, radius, useSurfaceStyle, GlassSurface } from '../theme';
 import { makeSession, UNIT } from '../data/session';
 
 const fmtDuration = (s) => {
@@ -24,6 +24,7 @@ const fmtDuration = (s) => {
 const fmtRest = (s) => `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, '0')}s`;
 
 export default function InSessionScreen({ navigation }) {
+  const typography = useTypography();
   const [session, setSession] = useState(makeSession);
   const [expandedId, setExpandedId] = useState('ohp');
   const [duration, setDuration] = useState(24 * 60 + 3); // seed to match the mock
@@ -163,17 +164,17 @@ export default function InSessionScreen({ navigation }) {
               {expanded && (
                 <View style={styles.table}>
                   <View style={styles.row}>
-                    <Text style={[styles.th, styles.colSet]}>SET</Text>
-                    <Text style={[styles.th, styles.colPrev]}>PREVIOUS</Text>
-                    <Text style={[styles.th, styles.colNum]}>{UNIT.toUpperCase()}</Text>
-                    <Text style={[styles.th, styles.colNum]}>REPS</Text>
+                    <Text style={[typography.label, styles.th, styles.colSet]}>SET</Text>
+                    <Text style={[typography.label, styles.th, styles.colPrev]}>PREVIOUS</Text>
+                    <Text style={[typography.label, styles.th, styles.colNum]}>{UNIT.toUpperCase()}</Text>
+                    <Text style={[typography.label, styles.th, styles.colNum]}>REPS</Text>
                     <Icon name="checkmark" size={14} color={colors.textSecondary} style={styles.colCheck} />
                   </View>
 
                   {ex.sets.map((s, i) => (
                     <View key={i} style={[styles.row, s.done && styles.rowDone]}>
-                      <Text style={[styles.td, styles.colSet, { color: colors.textPrimary }]}>{i + 1}</Text>
-                      <Text style={[styles.td, styles.colPrev, { color: colors.textSecondary }]}>
+                      <Text style={[typography.body, styles.colSet, { color: colors.textPrimary }]}>{i + 1}</Text>
+                      <Text style={[typography.body, styles.colPrev, { color: colors.textSecondary }]}>
                         {s.prev}
                       </Text>
                       <Cell
@@ -236,6 +237,7 @@ export default function InSessionScreen({ navigation }) {
 }
 
 function Stat({ label, value }) {
+  const typography = useTypography();
   return (
     <View style={styles.stat}>
       <Text style={[typography.caption, { color: colors.textSecondary }]}>{label}</Text>
@@ -245,6 +247,7 @@ function Stat({ label, value }) {
 }
 
 function Cell({ value, onChange }) {
+  const typography = useTypography();
   return (
     <View style={styles.colNum}>
       <TextInput
@@ -305,8 +308,9 @@ const styles = StyleSheet.create({
   table: { paddingHorizontal: spacing.lg, paddingBottom: spacing.md },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.sm, gap: spacing.sm },
   rowDone: { opacity: 0.85 },
-  th: { ...typography.label, color: colors.textSecondary },
-  td: { ...typography.body },
+  // Typography for these is applied inline (scaled via useTypography); this
+  // keeps only colour/layout so Dynamic Type reaches the table text too.
+  th: { color: colors.textSecondary },
   colSet: { width: 28 },
   colPrev: { flex: 1 },
   colNum: { width: 52, alignItems: 'center' },

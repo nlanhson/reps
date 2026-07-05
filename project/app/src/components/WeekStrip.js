@@ -1,5 +1,5 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { colors, typography, radius, spacing, borderCurve } from '../theme';
+import { colors, useTypography, radius, spacing, borderCurve } from '../theme';
 
 // Figma "Weekly Workout Log" day pills: each day is a rounded cell with the
 // weekday, date, and a dot marking a logged workout. The selected day (today)
@@ -9,6 +9,15 @@ import { colors, typography, radius, spacing, borderCurve } from '../theme';
 const DOT = 6; // logged-workout dot diameter (Figma spec)
 
 export default function WeekStrip({ days, selectedKey, onSelect }) {
+  const typography = useTypography();
+  // Selected weekday bumps to medium weight (Figma), same 12px metrics.
+  // h6 carries the platform-correct medium cut (Inter_500Medium on Android).
+  const w12Medium = {
+    ...typography.h6,
+    fontSize: typography.captionSmall.fontSize,
+    lineHeight: typography.captionSmall.lineHeight,
+    letterSpacing: typography.captionSmall.letterSpacing,
+  };
   return (
     <View style={styles.strip}>
       {days.map((d) => {
@@ -45,15 +54,6 @@ export default function WeekStrip({ days, selectedKey, onSelect }) {
     </View>
   );
 }
-
-// Selected weekday bumps to medium weight (Figma), same 12px metrics.
-// h6 carries the platform-correct medium cut (Inter_500Medium on Android).
-const w12Medium = {
-  ...typography.h6,
-  fontSize: typography.captionSmall.fontSize,
-  lineHeight: typography.captionSmall.lineHeight,
-  letterSpacing: typography.captionSmall.letterSpacing,
-};
 
 const styles = StyleSheet.create({
   strip: { flexDirection: 'row', gap: spacing.xs },

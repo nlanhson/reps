@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Pressable, View, Text, StyleSheet } from 'react-native';
 import Svg, { Path, Rect, Defs, LinearGradient, Stop } from 'react-native-svg';
 import Icon from './Icon';
-import { colors, typography, gradients, radius, spacing } from '../theme';
+import { colors, useTypography, gradients, radius, spacing } from '../theme';
 
 // Library folder card, shaped like an iOS folder: a lighter back sheet peeks
 // out top-right behind a gradient front panel whose top-left tab shoulders
@@ -44,6 +44,7 @@ function folderPath(w, h) {
 }
 
 export default function FolderCard({ name, items, onPress }) {
+  const typography = useTypography();
   const [size, setSize] = useState(null);
   return (
     <Pressable

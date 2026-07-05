@@ -1,6 +1,6 @@
 import { Pressable, View, Text, StyleSheet } from 'react-native';
 import Icon from './Icon';
-import { colors, typography, radius, spacing } from '../theme';
+import { colors, useTypography, radius, spacing } from '../theme';
 
 // Circular exercise thumbnail. We have no images yet, so render a tinted
 // circle with a barbell glyph — swap for a real image when assets land.
@@ -15,6 +15,7 @@ function Avatar({ size = 40 }) {
 // "Detailed Exercise Card" row: avatar + name + meta ("50 kg · 3 × 8–10"),
 // optional leading set-count prefix ("2 ×"), trailing kebab or custom node.
 export default function ExerciseRow({ name, meta, countPrefix, onPress, trailingIcon = 'ellipsis-vertical', onTrailingPress }) {
+  const typography = useTypography();
   return (
     <Pressable
       onPress={onPress}

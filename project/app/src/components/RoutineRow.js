@@ -1,12 +1,13 @@
 import { Pressable, View, Text, StyleSheet } from 'react-native';
 import Icon from './Icon';
-import { colors, typography, gradients, spacing } from '../theme';
+import { colors, useTypography, gradients, spacing } from '../theme';
 import Card from './Card';
 
 // A routine/workout list row as seen on Home: dark gradient card (with the
 // shared hairline border + soft shadow) showing the workout name, an
 // "N exercises" subtitle, and a trailing play affordance.
 export default function RoutineRow({ name, subtitle, onPress }) {
+  const typography = useTypography();
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [pressed && { opacity: 0.85 }]}>
       <Card gradient={gradients.surface} style={styles.row}>

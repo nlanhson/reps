@@ -1,12 +1,13 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import Icon from './Icon';
-import { colors, typography, spacing } from '../theme';
+import { colors, useTypography, spacing } from '../theme';
 import Card from './Card';
 import Separator from './Separator';
 
 // One stat in the micro-info row (clock + "46 min", dumbbell + "3,438 kg").
 // The set count renders without an icon, per the design.
 function Meta({ icon, text }) {
+  const typography = useTypography();
   return (
     <View style={styles.meta}>
       {icon ? <Icon name={icon} size={18} color={colors.textPrimary} /> : null}
@@ -21,6 +22,7 @@ function Meta({ icon, text }) {
 const AVATAR = 32;
 
 function SessionExercise({ name, meta, countPrefix }) {
+  const typography = useTypography();
   return (
     <View style={styles.exRow}>
       <View style={styles.exAvatar}>
@@ -46,6 +48,7 @@ function SessionExercise({ name, meta, countPrefix }) {
 // `session` = { name, date, duration, volume, setCount,
 //               exercises: [{ name, meta, countPrefix }] }
 export default function SessionCard({ session, previewCount = 3, expanded = false, onToggle, onPress }) {
+  const typography = useTypography();
   const { name, date, duration, volume, setCount, exercises = [] } = session;
   const shown = expanded ? exercises : exercises.slice(0, previewCount);
   const remaining = exercises.length - shown.length;

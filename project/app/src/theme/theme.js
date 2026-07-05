@@ -11,11 +11,15 @@ export const colors = {
   bg: neutral[900],          // #050505 screen background
   surface: neutral[800],     // #101010 cards / list items
   surfaceElevated: neutral[700], // #2E2D32 raised elements, inputs
+  surfaceSunken: neutral[850], // #0B0B0B flat tiles, darker than cards
+  surfaceChip: neutral[750], // #1F1F21 small pill / badge backgrounds
+  iconChip: neutral[600],    // #505050 circular fill behind a list icon
 
   // Text
   textPrimary: neutral[100], // #EBEBEB
   textSecondary: neutral[400], // #949494
   textMuted: neutral[300],   // #B1B1B1
+  textFaint: neutral[500],   // #727272 dimmest — neutral / negative deltas
   textOnAccent: '#FFFFFF',   // text on the orange brand button
 
   // Brand
@@ -61,19 +65,37 @@ const w = (style, fontWeight) =>
   Platform.OS === 'android'
     ? { ...style, fontFamily: ANDROID_INTER[fontWeight], fontWeight: 'normal' }
     : { ...style, fontWeight };
+
+// Semantic type roles mapped onto Apple's HIG text styles.
+// The legacy h1–h6 / caption keys are kept (screens still reference them) and
+// point at the nearest HIG style; the HIG-named keys below are the preferred
+// names for new code. Weights follow HIG defaults, with Bold titles to match
+// Apple's own first-party apps (Fitness/Health) and the screenshot hierarchy.
 export const typography = {
+  // --- HIG-named styles (prefer these in new code) ---
   largeTitle: w(type.largeTitle, weight.bold),
-  h1: w(type.h1, weight.bold),
-  h2: w(type.h2, weight.semibold),
-  h3: w(type.h3, weight.semibold),
-  h4: w(type.h4, weight.semibold),
-  h5: w(type.h5, weight.medium),
-  h6: w(type.h6, weight.medium),
-  body: w(type.body14, weight.regular),
-  bodyStrong: w(type.body14, weight.semibold),
-  caption: w(type.body14, weight.regular),
-  captionSmall: w(type.body12, weight.regular),
-  label: w(type.label, weight.medium),
+  title1: w(type.title1, weight.bold),
+  title2: w(type.title2, weight.semibold),
+  title3: w(type.title3, weight.semibold),
+  headline: w(type.headline, weight.semibold),
+  body: w(type.body, weight.regular),
+  bodyStrong: w(type.body, weight.semibold), // HIG "Body (Emphasized)"
+  callout: w(type.callout, weight.regular),
+  subhead: w(type.subhead, weight.medium),
+  footnote: w(type.footnote, weight.regular),
+  caption1: w(type.caption1, weight.regular),
+  caption2: w(type.caption2, weight.medium),
+
+  // --- Legacy aliases (existing screens) → nearest HIG style ---
+  h1: w(type.title1, weight.bold),      // Title 1  · 28
+  h2: w(type.title2, weight.semibold),  // Title 2  · 22
+  h3: w(type.title3, weight.semibold),  // Title 3  · 20
+  h4: w(type.headline, weight.semibold),// Headline · 17
+  h5: w(type.callout, weight.medium),   // Callout  · 16
+  h6: w(type.subhead, weight.medium),   // Subhead  · 15
+  caption: w(type.footnote, weight.regular),   // Footnote  · 13
+  captionSmall: w(type.caption1, weight.regular), // Caption 1 · 12
+  label: w(type.caption2, weight.medium),         // Caption 2 · 11
 };
 
 // --- Spacing (4-pt base) — INFERRED, confirm against screens ----------

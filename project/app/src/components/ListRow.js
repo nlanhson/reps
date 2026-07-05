@@ -1,6 +1,6 @@
 import { Pressable, View, Text, StyleSheet } from 'react-native';
 import Icon from './Icon';
-import { colors, typography, spacing } from '../theme';
+import { colors, useTypography, spacing } from '../theme';
 
 // Generic settings / list row: optional leading icon, label, optional
 // trailing value text, and a trailing accessory (chevron by default, or a
@@ -13,6 +13,7 @@ export default function ListRow({
   trailing,
   showChevron = true,
 }) {
+  const typography = useTypography();
   return (
     <Pressable
       onPress={onPress}
