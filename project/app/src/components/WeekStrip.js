@@ -1,5 +1,6 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { colors, useTypography, radius, spacing, borderCurve } from '../theme';
+import { LinearGradient } from 'expo-linear-gradient';
+import { colors, useTypography, radius, spacing, borderCurve, gradients } from '../theme';
 
 // Figma "Weekly Workout Log" day pills: each day is a rounded cell with the
 // weekday, date, and a dot marking a logged workout. The selected day (today)
@@ -23,12 +24,8 @@ export default function WeekStrip({ days, selectedKey, onSelect }) {
       {days.map((d) => {
         const active = d.key === selectedKey;
         const Cell = onSelect ? Pressable : View;
-        return (
-          <Cell
-            key={d.key}
-            style={[styles.cell, active && styles.cellActive]}
-            onPress={onSelect ? () => onSelect(d.key) : undefined}
-          >
+        const inner = (
+          <>
             <Text
               style={[
                 active ? w12Medium : typography.captionSmall,
@@ -48,6 +45,29 @@ export default function WeekStrip({ days, selectedKey, onSelect }) {
                 },
               ]}
             />
+          </>
+        );
+        return (
+          <Cell
+            key={d.key}
+            style={styles.cellWrap}
+            onPress={onSelect ? () => onSelect(d.key) : undefined}
+          >
+            {active ? (
+              // Active day: solid brand accent fill.
+              <View style={[styles.cell, styles.cellActive]}>{inner}</View>
+            ) : (
+              // Inactive days reuse the "Start Empty Workout" surface: the darker
+              // vertical surface gradient + light hairline (fallback Card recipe).
+              <LinearGradient
+                colors={gradients.surface}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 0, y: 1 }}
+                style={styles.cell}
+              >
+                {inner}
+              </LinearGradient>
+            )}
           </Cell>
         );
       })}
@@ -57,15 +77,15 @@ export default function WeekStrip({ days, selectedKey, onSelect }) {
 
 const styles = StyleSheet.create({
   strip: { flexDirection: 'row', gap: spacing.xs },
+  cellWrap: { flex: 1 }, // press target + equal-width flex; visual surface nests inside
   cell: {
-    flex: 1,
     alignItems: 'center',
     gap: 2,
     paddingTop: spacing.xs,
     paddingBottom: spacing.sm,
     borderRadius: radius.sm,
     borderCurve,
-    backgroundColor: colors.surfaceElevated,
+    overflow: 'hidden', // clip the gradient fill to the squircle
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.hairline,
   },

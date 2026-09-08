@@ -33,6 +33,7 @@ export const colors = {
   // premium border on dark backgrounds; ring = focus / accent highlight.
   hairline: 'rgba(255,255,255,0.08)',
   hairlineBright: 'rgba(255,255,255,0.10)', // outlined shapes (folder card layers)
+  highlight: 'rgba(255,255,255,0.14)', // top-edge "light from above" highlight on flat fallback surfaces
   ring: brand[500],          // #F05305 focus ring
 
   // Feedback
@@ -114,7 +115,7 @@ export const spacing = {
 // --- Radius — matches the Figma system (Apple-like rounding) ----------
 // Two primary values from Figma: 24 for big cards, 18 for buttons/small.
 export const radius = {
-  sm: 10,
+  sm: 12,
   md: 18, // buttons & small controls (Figma "18")
   lg: 24, // big cards (Figma "24")
   pill: 999,

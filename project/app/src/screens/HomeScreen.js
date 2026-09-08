@@ -1,14 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import {
-  AccessibilityInfo,
-  Animated,
-  Easing,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, useTypography, spacing, gradients, radius } from '../theme';
 import {
@@ -27,56 +18,10 @@ const WORKOUTS_TAB = mainRoutine.name; // preferred routine's workouts
 const LIBRARY_TAB = 'Library'; // all saved routines
 const TABS = [LIBRARY_TAB, WORKOUTS_TAB]; // display order
 
-const SLIDE = 24; // px the incoming content travels
-const DURATION = 200; // ms — fast; tab switches happen often
-const EASE_OUT = Easing.bezier(0.23, 1, 0.32, 1); // strong ease-out (Emil)
-
 export default function HomeScreen({ navigation }) {
   const typography = useTypography();
   const [tab, setTab] = useState(LIBRARY_TAB);
   const onLibrary = tab === LIBRARY_TAB;
-
-  // Respect the OS "reduce motion" setting — drop the positional slide and
-  // keep only a quick fade (vestibular-safe).
-  const [reduceMotion, setReduceMotion] = useState(false);
-  useEffect(() => {
-    AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
-    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);
-    return () => sub?.remove?.();
-  }, []);
-
-  // Content transition: the new tab's content fades + slides in from the
-  // side its tab sits on (spatial consistency). opacity + translateX only,
-  // on the native driver.
-  const anim = useRef(new Animated.Value(1)).current;
-  const dir = useRef(1);
-
-  const changeTab = (next) => {
-    if (next === tab) return;
-    dir.current = TABS.indexOf(next) > TABS.indexOf(tab) ? 1 : -1;
-    setTab(next);
-    anim.setValue(0);
-    Animated.timing(anim, {
-      toValue: 1,
-      duration: reduceMotion ? 120 : DURATION,
-      easing: EASE_OUT,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const contentStyle = {
-    opacity: anim,
-    transform: reduceMotion
-      ? undefined
-      : [
-          {
-            translateX: anim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [SLIDE * dir.current, 0],
-            }),
-          },
-        ],
-  };
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -99,22 +44,36 @@ export default function HomeScreen({ navigation }) {
           </View>
         </Card>
 
-        {/* Start from scratch */}
+        {/* Start from scratch — ghost action: just icon + text, no surface.
+            Accent-coloured so it still reads as tappable without a border. */}
+        <Pressable
+          onPress={() => navigation.navigate('InSession')}
+          style={({ pressed }) => [styles.emptyBtn, pressed && { opacity: 0.6 }]}
+        >
+          <Icon name="add" size={20} color={colors.textSecondary} />
+          <Text style={[typography.body, { color: colors.textSecondary }]}>
+            Start Empty Workout
+          </Text>
+        </Pressable>
+
+        {/* Carded version — preserved for reuse. Swap this back in (and drop the
+            ghost block above) to restore the filled gradient surface.
         <Pressable
           onPress={() => navigation.navigate('InSession')}
           style={({ pressed }) => [styles.emptyBtn, pressed && { opacity: 0.85 }]}
         >
           <Card gradient={gradients.surface} padded={false} cornerRadius={radius.md} style={styles.emptyCard}>
             <Icon name="add" size={20} color={colors.textSecondary} />
-            <Text style={[typography.bodyStrong, { color: colors.textSecondary }]}>
+            <Text style={[typography.body, { color: colors.textSecondary }]}>
               Start Empty Workout
             </Text>
           </Card>
         </Pressable>
+        */}
 
         {/* Preferred routine  ⇄  Library, with per-tab actions */}
         <View style={styles.tabRow}>
-          <UnderlineTabs tabs={TABS} value={tab} onChange={changeTab} />
+          <UnderlineTabs tabs={TABS} value={tab} onChange={setTab} />
           <View style={styles.tabActions}>
             {onLibrary ? (
               <>
@@ -133,33 +92,38 @@ export default function HomeScreen({ navigation }) {
           </View>
         </View>
 
-        <Animated.View style={contentStyle}>
-          {onLibrary ? (
-            // Library: grid of folders, one per saved routine
-            <View style={styles.grid}>
-              {library.map((folder) => (
-                <FolderCard
-                  key={folder.id}
-                  name={folder.name}
-                  items={folder.items}
-                  onPress={() => navigation.navigate('PlanDetail', { id: folder.id })}
-                />
-              ))}
-            </View>
-          ) : (
-            // Workouts: the preferred routine's workout list
-            <View style={styles.list}>
-              {mainRoutine.workouts.map((w) => (
-                <RoutineRow
-                  key={w.id}
-                  name={w.name}
-                  subtitle={`${w.exercises} exercises`}
-                  onPress={() => navigation.navigate('WorkoutDetail', { id: w.id })}
-                />
-              ))}
-            </View>
-          )}
-        </Animated.View>
+        {/* Both tabs stay mounted and are toggled by `display` — never
+            re-mounted on switch. Re-mounting the cards (inside the old animated
+            wrapper) was dropping their background views on iOS, leaving text and
+            icons floating on black. Mounting once, painting once, keeps them
+            rock-solid. */}
+        <View style={onLibrary ? undefined : styles.hidden}>
+          {/* Library: grid of folders, one per saved routine */}
+          <View style={styles.grid}>
+            {library.map((folder) => (
+              <FolderCard
+                key={folder.id}
+                name={folder.name}
+                items={folder.items}
+                onPress={() => navigation.navigate('PlanDetail', { id: folder.id })}
+              />
+            ))}
+          </View>
+        </View>
+        <View style={onLibrary ? styles.hidden : undefined}>
+          {/* Workouts: the preferred routine's workout list */}
+          <View style={styles.list}>
+            {mainRoutine.workouts.map((w) => (
+              <RoutineRow
+                key={w.id}
+                name={w.name}
+                subtitle={`${w.exercises} exercises`}
+                elevated
+                onPress={() => navigation.navigate('WorkoutDetail', { id: w.id })}
+              />
+            ))}
+          </View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -170,7 +134,15 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: spacing.xl, paddingBottom: spacing['4xl'] },
   hero: { padding: spacing.xl },
   heroMeta: { color: colors.textSecondary, marginTop: spacing.xs },
-  emptyBtn: { marginTop: spacing.md },
+  emptyBtn: {
+    marginTop: spacing.md,
+    height: 52,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+  },
+  // Preserved for the carded "Start Empty Workout" variant (see JSX above).
   emptyCard: {
     height: 52,
     flexDirection: 'row',
@@ -186,6 +158,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   tabActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
+  hidden: { display: 'none' },
   list: { gap: spacing.md },
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: spacing.lg },
 });

@@ -1,5 +1,5 @@
 import { useLayoutEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActionSheetIOS, Alert, Platform, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, useTypography, spacing, gradients } from '../theme';
 import { AppButton, Card, Chip, ExerciseRow, Icon, ProgressChart } from '../components';
@@ -25,16 +25,49 @@ export default function WorkoutDetailScreen({ navigation, route }) {
   // Native stack header (native iOS back button → Liquid Glass on iOS 26); the
   // kebab is a native header action. The big workout name stays in the body.
   useLayoutEffect(() => {
+    const onShare = () =>
+      Share.share({ message: `Check out the "${workout.name}" workout on Reps` });
+    // TODO: real deletion needs persistence (see STATE.md); confirm backs out for now.
+    const onDelete = () =>
+      Alert.alert('Delete Workout', `Delete "${workout.name}"?`, [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', style: 'destructive', onPress: () => navigation.goBack() },
+      ]);
+
+    // Single three-dots button → native menu. ActionSheetIOS is the real UIKit
+    // action sheet; Android falls back to an Alert action list.
+    const openMenu = () => {
+      if (Platform.OS === 'ios') {
+        ActionSheetIOS.showActionSheetWithOptions(
+          {
+            title: workout.name,
+            options: ['Share', 'Delete Workout', 'Cancel'],
+            destructiveButtonIndex: 1,
+            cancelButtonIndex: 2,
+          },
+          (i) => {
+            if (i === 0) onShare();
+            else if (i === 1) onDelete();
+          },
+        );
+      } else {
+        Alert.alert(workout.name, undefined, [
+          { text: 'Share', onPress: onShare },
+          { text: 'Delete', style: 'destructive', onPress: onDelete },
+          { text: 'Cancel', style: 'cancel' },
+        ]);
+      }
+    };
+
     navigation.setOptions({
       title: 'Workout Detail',
       headerRight: () => (
-        // TODO: edit/delete menu
-        <Pressable hitSlop={8}>
+        <Pressable hitSlop={8} style={styles.headerBtn} onPress={openMenu}>
           <Icon name="ellipsis-vertical" size={22} color={colors.textPrimary} />
         </Pressable>
       ),
     });
-  }, [navigation]);
+  }, [navigation, workout.name]);
 
   return (
     <SafeAreaView style={styles.safe} edges={['bottom']}>
@@ -93,6 +126,10 @@ export default function WorkoutDetailScreen({ navigation, route }) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
+  // Wrap the glyph tightly (no fixed width) so the glass capsule hugs it and the
+  // `ellipsis` sits centred — a wider box left slack that read as off-centre.
+  // hitSlop keeps the touch target comfortable.
+  headerBtn: { alignItems: 'center', justifyContent: 'center' },
   content: { paddingHorizontal: spacing.xl, paddingTop: spacing.md, paddingBottom: spacing.lg },
   meta: { color: colors.textSecondary, marginTop: spacing.xs },
   chipRow: {

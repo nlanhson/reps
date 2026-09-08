@@ -1,8 +1,8 @@
 import { useLayoutEffect } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActionSheetIOS, Alert, Platform, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, useTypography, spacing, gradients, radius } from '../theme';
-import { Card, Icon, RoutineRow } from '../components';
+import { colors, useTypography, spacing } from '../theme';
+import { Icon, RoutineRow } from '../components';
 import { getRoutine } from '../data/mock';
 
 // Plan Detail — a routine (training split) opened from a Library folder. Uses
@@ -15,16 +15,54 @@ export default function PlanDetailScreen({ navigation, route }) {
   const routine = getRoutine(route.params?.id);
 
   useLayoutEffect(() => {
+    const onShare = () =>
+      Share.share({ message: `Check out my "${routine.name}" routine on Reps` });
+    // TODO: real deletion needs routine persistence (see STATE.md); for now the
+    // confirm just backs out of the detail screen.
+    const onDelete = () =>
+      Alert.alert('Delete Routine', `Delete "${routine.name}"?`, [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', style: 'destructive', onPress: () => navigation.goBack() },
+      ]);
+
+    // TODO: routine editing isn't built yet — placeholder option, no-op for now.
+    const onEdit = () => {};
+
+    // Kebab → native menu (Share now has its own button, so the menu holds the
+    // rest). ActionSheetIOS is the real UIKit sheet; Android falls back to Alert.
+    const openMenu = () => {
+      if (Platform.OS === 'ios') {
+        ActionSheetIOS.showActionSheetWithOptions(
+          {
+            title: routine.name,
+            options: ['Edit Routine', 'Delete Routine', 'Cancel'],
+            destructiveButtonIndex: 1,
+            cancelButtonIndex: 2,
+          },
+          (i) => {
+            if (i === 0) onEdit();
+            else if (i === 1) onDelete();
+          },
+        );
+      } else {
+        Alert.alert(routine.name, undefined, [
+          { text: 'Edit', onPress: onEdit },
+          { text: 'Delete', style: 'destructive', onPress: onDelete },
+          { text: 'Cancel', style: 'cancel' },
+        ]);
+      }
+    };
+
+    // Share + kebab in one headerRight View → one glass capsule ("one OS
+    // component"), both wired. `export` = the real iOS share glyph.
     navigation.setOptions({
       title: routine.name,
       headerRight: () => (
         <View style={styles.headerActions}>
-          {/* TODO: export/share the routine */}
-          <Pressable hitSlop={8}>
-            <Icon name="arrow-redo-outline" size={22} color={colors.textPrimary} />
+          <Pressable hitSlop={8} style={styles.headerBtn} onPress={onShare}>
+            <Icon name="export" size={22} color={colors.textPrimary} />
           </Pressable>
-          {/* TODO: rename/delete menu */}
-          <Pressable hitSlop={8}>
+          <Pressable hitSlop={8} style={styles.headerBtn} onPress={openMenu}>
             <Icon name="ellipsis-vertical" size={22} color={colors.textPrimary} />
           </Pressable>
         </View>
@@ -47,13 +85,12 @@ export default function PlanDetailScreen({ navigation, route }) {
         </View>
 
         {/* TODO: workout builder flow (routine editing isn't built yet) */}
-        <Pressable style={({ pressed }) => [styles.createBtn, pressed && { opacity: 0.85 }]}>
-          <Card gradient={gradients.surface} padded={false} cornerRadius={radius.md} style={styles.createCard}>
-            <Icon name="add" size={20} color={colors.textSecondary} />
-            <Text style={[typography.bodyStrong, { color: colors.textSecondary }]}>
-              Create New Workout
-            </Text>
-          </Card>
+        {/* Ghost action: icon + text only, no surface (matches Home's "Start Empty Workout"). */}
+        <Pressable style={({ pressed }) => [styles.createBtn, pressed && { opacity: 0.6 }]}>
+          <Icon name="add" size={20} color={colors.textSecondary} />
+          <Text style={[typography.body, { color: colors.textSecondary }]}>
+            New Workout
+          </Text>
         </Pressable>
       </ScrollView>
     </SafeAreaView>
@@ -63,10 +100,13 @@ export default function PlanDetailScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   content: { paddingHorizontal: spacing.xl, paddingBottom: spacing['4xl'], paddingTop: spacing.md },
-  headerActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
+  headerActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  // Fixed, symmetric box so each SF Symbol centers inside its native (glass)
+  // header button — a bare wide glyph like `ellipsis` otherwise reads off-centre.
+  headerBtn: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
   list: { gap: spacing.md, marginTop: spacing.sm },
-  createBtn: { marginTop: spacing.xl },
-  createCard: {
+  createBtn: {
+    marginTop: spacing.xl,
     height: 52,
     flexDirection: 'row',
     alignItems: 'center',

@@ -17,7 +17,9 @@ const logged = (workoutId, prefix = '3 ×') =>
 // "Today" for the mock dataset — the selected pill in the week strip.
 export const todayKey = '2026-07-04';
 
-export const historyWeeks = [
+// The two most recent weeks are hand-written for realistic copy; everything
+// older is generated (see below). Keep these two the newest in the array.
+const curatedWeeks = [
   {
     key: 'w-2026-06-22',
     monthLabel: 'Jun, 2026',
@@ -114,3 +116,84 @@ export const historyWeeks = [
     note: 'Workout completed today.\nReturn tomorrow to stay consistent.',
   },
 ];
+
+// --- Procedural back-history ------------------------------------------------
+// Weightlifters review progress over months, not just this week, so history is
+// NOT capped to a couple of weeks — we page back a full year. Production will
+// lazy-load weeks from Supabase back to the user's first logged workout; this
+// mock generates them deterministically (seeded, computed once) so paging feels
+// deep without hand-writing every week. Bump WEEKS_OF_HISTORY freely — the
+// History screen pager + chevrons already honor whatever length this array is.
+const WEEKS_OF_HISTORY = 52; // one year (2 curated + 50 generated)
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const FULLDAY = {
+  Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday',
+  Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday',
+};
+const TEMPLATES = [
+  { id: 'upper', name: 'Upper Body' },
+  { id: 'lower', name: 'Lower Body' },
+  { id: 'chest-arms', name: 'Chest & Arms' },
+  { id: 'back-arms', name: 'Back & Arms' },
+];
+
+const pad = (n) => String(n).padStart(2, '0');
+const iso = (d) => `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
+const commas = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); // Hermes lacks Intl grouping
+// Deterministic pseudo-random in [0,1) from an integer seed (stable per launch).
+const rand = (seed) => {
+  const x = Math.sin(seed * 12.9898) * 43758.5453;
+  return x - Math.floor(x);
+};
+
+// Build one Mon–Sun week from its Monday (UTC), seeded by its global index `i`.
+function buildWeek(monday, i) {
+  const days = [];
+  for (let k = 0; k < 7; k++) {
+    const d = new Date(monday);
+    d.setUTCDate(d.getUTCDate() + k);
+    const trained = rand(i * 7 + k) > 0.45; // ~55% of days logged
+    days.push({
+      key: iso(d),
+      weekday: WEEKDAYS[k],
+      date: d.getUTCDate(),
+      ...(trained ? { logged: true } : {}),
+    });
+  }
+  const sunday = new Date(monday);
+  sunday.setUTCDate(sunday.getUTCDate() + 6);
+  const monthLabel = `${MONTHS[sunday.getUTCMonth()]}, ${sunday.getUTCFullYear()}`;
+
+  const sessions = days
+    .filter((d) => d.logged)
+    .map((d, j) => {
+      const t = TEMPLATES[(i + j) % TEMPLATES.length];
+      const dObj = new Date(`${d.key}T00:00:00Z`);
+      const vol = 2800 + Math.round(rand(i * 31 + j) * 2600); // 2,800–5,400 kg
+      const dur = 42 + Math.round(rand(i * 17 + j) * 16); // 42–58 min
+      return {
+        id: `s-${d.key}`,
+        name: t.name,
+        date: `${FULLDAY[d.weekday]}, ${MONTHS[dObj.getUTCMonth()]} ${dObj.getUTCDate()}, ${dObj.getUTCFullYear()} · ${4 + (j % 3)}:${pad(10 + j * 7)}pm`,
+        duration: `${dur} min`,
+        volume: `${commas(vol)} kg`,
+        setCount: `${12 + (j % 4)} Set`,
+        exercises: logged(t.id),
+      };
+    })
+    .reverse(); // newest day first, matching the curated weeks
+  return { key: `w-${iso(monday)}`, monthLabel, days, sessions, note: 'Solid week of training.\nProgress adds up.' };
+}
+
+// Generate the older weeks that sit BEFORE the two curated ones, oldest first.
+const FIRST_CURATED_MONDAY = new Date('2026-06-22T00:00:00Z');
+const generatedWeeks = [];
+for (let n = WEEKS_OF_HISTORY - curatedWeeks.length; n >= 1; n--) {
+  const monday = new Date(FIRST_CURATED_MONDAY);
+  monday.setUTCDate(monday.getUTCDate() - n * 7);
+  generatedWeeks.push(buildWeek(monday, n));
+}
+
+export const historyWeeks = [...generatedWeeks, ...curatedWeeks];
